@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Editor Newsletter Aurea</title>
+<link rel="icon" type="image/png" href="https://sharpmetricsagency.github.io/newsletter-aurea/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFEEEB;
+    --panel: #FFFFFF;
+    --muted-bg: #F5F4F1;
+    --ink: #37181E;
+    --text: #141413;
+    --muted: #5C5B57;
+    --subtle: #6B6A66;
+    --line: #E4E2DE;
+    --line-strong: #D3D0CA;
+    --gold: #B99B27;
+    --gold-text: #8C7317;
+    --warn-bg: #F8F0D8;
+    --warn: #6E5414;
+    --danger: #A8412B;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.45 "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+
+  /* ---------- Barra superiore ---------- */
+  .appbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 12px 20px; background: var(--ink); color: #fff;
+  }
+  .brand { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+  .brand .word { font-size: 18px; font-weight: 500; letter-spacing: .34em; color: var(--gold); }
+  .brand .sub { font-size: 13px; color: rgba(255,255,255,.72); white-space: nowrap; }
+  .actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    appearance: none; border: 0; border-radius: 999px; cursor: pointer;
+    padding: 9px 16px; font-size: 13px; font-weight: 600; line-height: 1;
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+    transition: background-color .15s, color .15s, box-shadow .15s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .btn-ghost { background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1px rgba(255,255,255,.7); }
+  .btn-primary { background: #fff; color: var(--ink); }
+  .btn-primary:hover { background: var(--muted-bg); }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid; grid-template-columns: minmax(360px, 470px) minmax(0, 1fr);
+    gap: 20px; padding: 20px; align-items: start; max-width: 1600px; margin: 0 auto;
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+
+  /* ---------- Form ---------- */
+  .form section { padding: 20px 22px; border-bottom: 1px solid var(--line); }
+  .form section:last-child { border-bottom: 0; }
+  .sec-title { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 15px; font-weight: 600; color: var(--ink); }
+  .sec-desc { margin: 0 0 16px; font-size: 12.5px; color: var(--subtle); }
+  .num {
+    width: 22px; height: 22px; border-radius: 50%; flex: none;
+    display: inline-grid; place-items: center;
+    background: var(--muted-bg); color: var(--ink); font-size: 12px; font-weight: 600;
+  }
+  .f { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; min-width: 0; }
+  .f > span { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .f em { font-style: normal; font-weight: 400; color: var(--subtle); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  input, textarea {
+    width: 100%; min-width: 0; border: 1px solid var(--line-strong); border-radius: 10px;
+    padding: 9px 11px; background: #fff; color: var(--text);
+  }
+  textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
+  input:focus, textarea:focus { outline: 2px solid var(--ink); outline-offset: -1px; border-color: var(--ink); }
+  input::placeholder, textarea::placeholder { color: #9A9893; }
+  .help { margin: -4px 0 12px; font-size: 12px; color: var(--subtle); }
+  .help code { font-size: 11.5px; background: var(--muted-bg); padding: 1px 5px; border-radius: 5px; }
+
+  details.brandset > summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+    font-size: 15px; font-weight: 600; color: var(--ink);
+  }
+  details.brandset > summary::-webkit-details-marker { display: none; }
+  details.brandset > summary .chev { margin-left: auto; transition: transform .2s; color: var(--subtle); }
+  details.brandset[open] > summary .chev { transform: rotate(180deg); }
+  details.brandset[open] > summary { margin-bottom: 14px; }
+
+  /* ---------- Prodotti ---------- */
+  .prod { border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 12px; background: var(--muted-bg); }
+  .prod-head { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .thumb { width: 44px; height: 55px; border-radius: 8px; background: #fff; overflow: hidden; flex: none; border: 1px solid var(--line); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .prod-title { min-width: 0; flex: 1; }
+  .prod-title strong { display: block; font-size: 13px; color: var(--ink); }
+  .prod-title span { display: block; font-size: 12px; color: var(--subtle); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prod-actions { display: flex; gap: 4px; flex: none; }
+  .icon-btn {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-strong);
+    background: #fff; color: var(--ink); cursor: pointer; display: inline-grid; place-items: center; padding: 0;
+  }
+  .icon-btn svg { width: 14px; height: 14px; }
+  .icon-btn:hover { border-color: var(--ink); }
+  .icon-btn:disabled { opacity: .35; cursor: default; border-color: var(--line-strong); }
+  .icon-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+  .icon-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .prod .f { margin-bottom: 8px; }
+  .prod input { padding: 8px 10px; }
+  .hints:empty { display: none; }
+  .hint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; font-size: 12px; color: var(--warn); }
+  .hint button {
+    border: 0; background: var(--ink); color: #fff; border-radius: 999px;
+    padding: 4px 10px; font-size: 11.5px; font-weight: 600; cursor: pointer;
+  }
+  .add {
+    width: 100%; border: 1.5px dashed var(--line-strong); background: transparent; border-radius: 14px;
+    padding: 12px; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .add:hover { border-color: var(--ink); background: var(--muted-bg); }
+  .quick { border: 1px solid var(--line); border-radius: 14px; padding: 12px 12px 2px; margin-bottom: 14px; }
+  .quick textarea { min-height: 0; }
+  .quick-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: -2px 0 10px; }
+  .quick-status { font-size: 12px; color: var(--muted); }
+  .quick-status.err { color: var(--danger); }
+  .quick .help { margin: 0 0 10px; }
+  .btn-dark { background: var(--ink); color: #fff; padding: 9px 16px; }
+  .btn-dark:hover { background: #4A2229; }
+  .btn-dark:disabled { opacity: .55; cursor: progress; }
+  .icon-btn.busy svg { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .note { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 12px; margin: 0 0 12px; }
+  .note[hidden] { display: none; }
+
+  .howto ol { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .howto li { margin-bottom: 6px; }
+  .howto strong { color: var(--ink); }
+
+  /* ---------- Anteprima ---------- */
+  .preview {
+    position: sticky; top: 78px; height: calc(100vh - 98px); min-height: 520px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .preview-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .preview-bar h2 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink); }
+  .seg { display: inline-flex; background: var(--muted-bg); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: transparent; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(20,20,19,.12); }
+  .size { margin-left: auto; font-size: 12px; color: var(--subtle); font-variant-numeric: tabular-nums; }
+  .size.bad { color: var(--danger); font-weight: 600; }
+  .frame-wrap { flex: 1; display: flex; justify-content: center; background: var(--bg); min-height: 0; }
+  .frame-wrap iframe { border: 0; width: 100%; height: 100%; background: var(--bg); }
+  .frame-wrap.is-mobile iframe { width: 390px; max-width: 100%; box-shadow: 0 0 0 1px var(--line); }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 22px; z-index: 50; max-width: calc(100% - 32px);
+    transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+    background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 999px; font-size: 13px;
+    transition: opacity .2s, transform .2s; box-shadow: 0 8px 24px rgba(20,20,19,.2);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .preview { position: relative; top: 0; height: 80vh; }
+  }
+  @media (max-width: 600px) {
+    .appbar { padding: 12px 16px; }
+    .brand .sub { display: none; }
+    .actions { margin-left: 0; width: 100%; }
+    .layout { padding: 16px; gap: 16px; }
+    .form section { padding: 18px 16px; }
+    .row2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand"><span class="word">AUREA</span><span class="sub">Editor newsletter per Brevo</span></div>
+  <div class="actions">
+    <button type="button" class="btn btn-ghost" id="btn-reset">Ripristina esempio</button>
+    <button type="button" class="btn btn-ghost" id="btn-import">Apri bozza</button>
+    <button type="button" class="btn btn-ghost" id="btn-export">Salva bozza</button>
+    <button type="button" class="btn btn-ghost" id="btn-download">Scarica .html</button>
+    <button type="button" class="btn btn-primary" id="btn-copy">Copia HTML</button>
+    <input type="file" id="file-import" accept="application/json,.json" class="sr-only" tabindex="-1" aria-hidden="true">
+  </div>
+</header>
+
+<main class="layout">
+  <form class="panel form" id="form" autocomplete="off" onsubmit="return false">
+
+    <section>
+      <h2 class="sec-title"><span class="num">1</span>Testata</h2>
+      <p class="sec-desc">Il logo e il piè di pagina sono fissi (vedi «Impostazioni brand» in fondo).</p>
+      <label class="f"><span>Anteprima nella inbox <em>(preheader)</em></span>
+        <input data-key="preheader" maxlength="140" placeholder="Il testo grigio che compare accanto all'oggetto">
+      </label>
+      <label class="f"><span>Barra bordeaux in alto <em>(lascia vuoto per nasconderla)</em></span>
+        <input data-key="topbar" placeholder="Spedizione gratuita in Italia">
+      </label>
+    </section>
+
+    <section>
+      <h2 class="sec-title"><span class="num">2</span>Banner</h2>
+      <p class="sec-desc">Formato consigliato 1200×800 px (3:2). Lascia vuoto l'URL per nasconderlo.</p>
+      <label class="f"><span>URL immagine banner</span><input data-key="banner.src" type="url" placeholder="https://…"></label>
+      <label class="f"><span>Link al clic</span><input data-key="banner.href" type="url" placeholder="https://www.collezioneaurea.com/…"></label>
+      <label class="f"><span>Testo alternativo <em>(se le immagini sono bloccate)</em></span><input data-key="banner.alt"></label>
+    </section>
+
+    <section>
+      <h2 class="sec-title"><span class="num">3</span>Titolo e testo</h2>
+      <p class="sec-desc">Ogni campo vuoto viene semplicemente omesso.</p>
+      <label class="f"><span>Occhiello <em>(piccolo testo oro sopra il titolo)</em></span><input data-key="eyebrow" placeholder="Nuova collezione"></label>
+      <label class="f"><span>Titolo</span><input data-key="title"></label>
+      <label class="f"><span>Descrizione</span><textarea data-key="text" rows="5"></textarea></label>
+      <p class="help">Riga vuota = nuovo paragrafo. <code>**parola**</code> = grassetto. Le variabili Brevo (es. <code>{{ contact.FIRSTNAME }}</code>) funzionano.</p>
+      <div class="row2">
+        <label class="f"><span>Bottone principale <em>(opz.)</em></span><input data-key="cta.label" placeholder="Scopri la collezione"></label>
+        <label class="f"><span>Link bottone</span><input data-key="cta.href" type="url" placeholder="https://…"></label>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="sec-title"><span class="num">4</span>Prodotti <span class="sec-desc" id="prod-count" style="margin:0 0 0 auto;font-weight:500"></span></h2>
+      <p class="sec-desc">Griglia a 3 colonne su desktop, 2 su smartphone. Ordine = ordine di visualizzazione.</p>
+      <div class="row2">
+        <label class="f"><span>Titolo sezione <em>(opz.)</em></span><input data-key="productsTitle" placeholder="Nuovi arrivi"></label>
+        <label class="f"><span>Testo bottone predefinito</span><input data-key="productCta" placeholder="Acquista"></label>
+      </div>
+      <div class="quick">
+        <label class="f"><span>Aggiungi da link <em>(incolla uno o più link, uno per riga)</em></span>
+          <textarea id="quick-links" rows="2" placeholder="https://www.collezioneaurea.com/prodotto/…"></textarea>
+        </label>
+        <div class="quick-row">
+          <button type="button" class="btn btn-dark" id="btn-quick">Aggiungi dal sito</button>
+          <span class="quick-status" id="quick-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="help">Nome, prezzo, eventuale prezzo barrato, immagine 600×750 e link vengono letti dal sito.</p>
+      </div>
+      <p class="note" id="webp-note" hidden>Alcune immagini sono in formato WebP: si vedono su Gmail, Apple Mail, Outlook web e app, ma non su Outlook desktop per Windows. Per la compatibilità totale usa JPG/PNG caricati nella libreria immagini di Brevo.</p>
+      <div id="products"></div>
+      <button type="button" class="add" id="btn-add">+ Aggiungi prodotto</button>
+    </section>
+
+    <section>
+      <details class="brandset">
+        <summary><span class="num">5</span>Impostazioni brand
+          <svg class="chev" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <label class="f"><span>URL logo</span><input data-key="brand.logo" type="url"></label>
+        <p class="help">Usa un PNG o JPG: il logo del sito è WebP e non si vede su Outlook desktop.</p>
+        <div class="row2">
+          <label class="f"><span>Larghezza logo (px)</span><input data-key="brand.logoWidth" type="number" min="60" max="300" step="2"></label>
+          <label class="f"><span>Link del logo</span><input data-key="brand.site" type="url"></label>
+        </div>
+        <label class="f"><span>Riga legale</span><input data-key="brand.legal"></label>
+        <label class="f"><span>Email contatto</span><input data-key="brand.email" type="email"></label>
+        <label class="f"><span>Link nel piè di pagina <em>(uno per riga: Etichetta | URL)</em></span><textarea data-key="brand.footerLinks" rows="5"></textarea></label>
+        <label class="f"><span>Nota disiscrizione</span><input data-key="brand.footerNote"></label>
+      </details>
+    </section>
+
+    <section class="howto">
+      <h2 class="sec-title"><span class="num">?</span>Come usarlo in Brevo</h2>
+      <ol>
+        <li>Compila i campi: l'anteprima si aggiorna da sola e le modifiche restano salvate in questo browser.</li>
+        <li>Per i prodotti basta incollare i link in <strong>Aggiungi da link</strong>. Con <strong>↻</strong> riallinei prezzo e immagine di una scheda al sito.</li>
+        <li>Clicca <strong>Copia HTML</strong>.</li>
+        <li>In Brevo crea la campagna, poi nel passaggio di design scegli <strong>Start from scratch › HTML custom code</strong> e incolla il codice.</li>
+        <li>Per riutilizzarlo: <strong>Actions › Save as template</strong>.</li>
+        <li>Per lavorarci con un collega usa <strong>Salva bozza</strong> / <strong>Apri bozza</strong> (file .json).</li>
+      </ol>
+    </section>
+  </form>
+
+  <section class="panel preview" aria-label="Anteprima email">
+    <div class="preview-bar">
+      <h2>Anteprima</h2>
+      <div class="seg" role="group" aria-label="Dispositivo">
+        <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-device="mobile" aria-pressed="false">Smartphone</button>
+      </div>
+      <span class="size" id="size"></span>
+    </div>
+    <div class="frame-wrap" id="frame-wrap">
+      <iframe id="frame" title="Anteprima della newsletter"></iframe>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ===================================================================
+     BUILDER EMAIL — genera l'HTML della newsletter a partire dai dati.
+     È lo stesso codice usato per produrre template-newsletter.html.
+     =================================================================== -->
+<script id="email-builder">
+(function (root) {
+  'use strict';
+
+  var C = {
+    canvas: '#EFEEEB', card: '#FFFFFF', media: '#F5F4F1', ink: '#37181E', muted: '#5C5B57',
+    subtle: '#6B6A66', gold: '#B99B27', goldText: '#8C7317', sale: '#A8412B'
+  };
+  var FONT = "'Instrument Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+  var SITE = 'https://www.collezioneaurea.com/';
+  var UP = SITE + 'wp-content/uploads/';
+
+  var DEFAULTS = {
+    preheader: 'Linee pulite e toni caldi: scopri i nuovi arrivi della collezione autunno inverno.',
+    topbar: 'Spedizione gratuita in Italia',
+    banner: {
+      src: UP + '2026/10/DSC07264-copia_11zon-1536x1024.webp',
+      href: SITE + 'categoria-prodotto/collezione-stories/',
+      alt: 'Stories, la nuova collezione autunno inverno di Collezione Aurea'
+    },
+    eyebrow: 'Stories',
+    title: 'La nuova collezione autunno inverno',
+    text: 'Linee pulite, materiali scelti con cura e i toni caldi della stagione: la collezione **Stories** è online.\n\nScopri i modelli pensati per accompagnarti ogni giorno, dalla mattina alla sera.',
+    cta: { label: 'Scopri la collezione', href: SITE + 'categoria-prodotto/collezione-stories/' },
+    productsTitle: 'Nuovi arrivi',
+    productCta: 'Acquista',
+    products: [
+      { name: 'Tokyo mini – Bordeaux', price: '179,00', oldPrice: '', href: SITE + 'prodotto/tokyo-mini-bordeaux/', img: UP + '2026/08/DSC00050-copia_11zon-scaled-600x750.webp', cta: '' },
+      { name: 'Ballerina Aria variante cinturino – Bordeaux', price: '135,00', oldPrice: '', href: SITE + 'prodotto/ballerina-aria-variante-cinturino-bordeaux/', img: UP + '2026/09/24-600x750.jpg', cta: '' },
+      { name: 'Stivaletto Mila – Nero', price: '179,00', oldPrice: '', href: SITE + 'prodotto/stivaletto-mila-nero/', img: UP + '2025/11/DSC00065-copia_11zon-scaled-600x750.webp', cta: '' },
+      { name: 'Ballerina Aria variante punta – Nero', price: '129,00', oldPrice: '', href: SITE + 'prodotto/ballerina-aria-variante-punta-nero/', img: UP + '2026/09/26-600x750.jpg', cta: '' },
+      { name: 'Ballerina Aria variante punta – Bordeaux', price: '129,00', oldPrice: '', href: SITE + 'prodotto/ballerina-aria-variante-punta-bordeaux/', img: UP + '2026/09/25-600x750.jpg', cta: '' },
+      { name: 'Ballerina Aria variante cinturino – Taupe', price: '135,00', oldPrice: '', href: SITE + 'prodotto/ballerina-aria-variante-cinturino-taupe/', img: UP + '2026/09/18-600x750.jpg', cta: '' }
+    ],
+    brand: {
+      logo: 'https://sharpmetricsagency.github.io/newsletter-aurea/logo-collezione-aurea.png',
+      logoWidth: 140,
+      site: SITE,
+      legal: 'Aurea Collezione · Viale Vecellio Tiziano, 43 · 80055 Portici (NA) · P.IVA 10185051215',
+      email: 'info@collezioneaurea.com',
+      footerLinks: 'Shop | ' + SITE + 'shop/\nSpedizioni | ' + SITE + 'spedizioni-e-consegne/\nResi | ' + SITE + 'politica-di-reso/\nContatti | ' + SITE + 'contatti/\nFacebook | https://www.facebook.com/aureacollezione/',
+      footerNote: 'Ricevi questa email perché sei iscritto/a alla newsletter di Collezione Aurea.'
+    }
+  };
+
+  function esc(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function has(v) { return v != null && String(v).trim() !== ''; }
+  function link(v) { return has(v) ? esc(String(v).trim()) : '#'; }
+  function font(size, lh, weight, color) {
+    return 'font-family:' + FONT + ';font-size:' + size + 'px;line-height:' + lh + 'px;font-weight:' + weight + ';color:' + color + ';';
+  }
+
+  // "179" / "179,9" / "1.250,00" / "179.90" -> "€179,90"; testo libero (es. "da €99") resta com'è
+  function fmtPrice(v) {
+    var s = String(v == null ? '' : v).trim();
+    if (!/^\d[\d.,]*$/.test(s)) return s;
+    var n;
+    if (s.indexOf(',') > -1) n = parseFloat(s.replace(/\./g, '').replace(',', '.'));
+    else if (/^\d+\.\d{1,2}$/.test(s)) n = parseFloat(s);
+    else n = parseFloat(s.replace(/\./g, ''));
+    if (isNaN(n)) return s;
+    var parts = n.toFixed(2).split('.');
+    return '€' + parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + parts[1];
+  }
+
+  function paragraphs(v, style) {
+    return esc(v).trim().split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) {
+      p = p.trim()
+        .replace(/\*\*(.+?)\*\*/g, '<strong style="font-weight:600;color:' + C.ink + ';">$1</strong>')
+        .replace(/\n/g, '<br>');
+      return '<p style="margin:14px 0 0;' + style + '">' + p + '</p>';
+    }).join('\n');
+  }
+
+  // Bottone a pillola: il link è cliccabile per intero; Outlook desktop usa mso-padding-alt (angoli squadrati).
+  function pill(label, url, o) {
+    var a = 'display:' + (o.block ? 'block' : 'inline-block') + ';padding:' + o.py + 'px ' + o.px + 'px;' +
+      font(o.size, o.size + 4, 600, '#FFFFFF') + 'letter-spacing:0.02em;text-decoration:none;border-radius:999px;';
+    return '<table role="presentation" ' + (o.block ? 'width="100%"' : 'align="center"') +
+      ' cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr>' +
+      '<td align="center" bgcolor="' + C.ink + '" style="border-radius:999px;background:' + C.ink + ';mso-padding-alt:' + o.py + 'px ' + o.px + 'px;">' +
+      '<a href="' + link(url) + '" target="_blank" style="' + a + '">' + esc(label) + '</a>' +
+      '</td></tr></table>';
+  }
+
+  function card(p, i, d) {
+    var name = has(p.name) ? p.name.trim() : 'Nome prodotto';
+    var cta = has(p.cta) ? p.cta : (has(d.productCta) ? d.productCta : 'Acquista');
+    var sale = has(p.oldPrice);
+    var img = has(p.img)
+      ? '<a href="' + link(p.href) + '" target="_blank" style="text-decoration:none;"><img src="' + esc(p.img.trim()) + '" width="174" alt="' + esc(name) + '" style="display:block;width:100%;max-width:174px;height:auto;border:0;outline:none;border-radius:12px;background:' + C.media + ';' + font(12, 16, 400, C.subtle) + '"></a>'
+      : '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;"><tr><td align="center" height="218" bgcolor="' + C.media + '" style="height:218px;border-radius:12px;background:' + C.media + ';' + font(12, 16, 400, C.subtle) + '">Immagine</td></tr></table>';
+    var price = (sale ? '<span style="font-weight:400;color:' + C.subtle + ';text-decoration:line-through;">' + esc(fmtPrice(p.oldPrice)) + '</span>&nbsp;&nbsp;' : '') +
+      '<span style="color:' + (sale ? C.sale : C.ink) + ';">' + esc(fmtPrice(p.price)) + '</span>';
+    return [
+      '<!-- ▼ PRODOTTO ' + (i + 1) + ' ▼ -->',
+      '<!--[if mso]><td width="188" valign="top" style="width:188px;"><![endif]-->',
+      '<div class="ca-card" style="display:inline-block;width:100%;max-width:188px;vertical-align:top;">',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:0 7px 28px;text-align:left;">',
+      img,
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">',
+      '<tr><td valign="top" style="padding:12px 0 0;height:38px;' + font(13, 19, 500, C.ink) + '"><a href="' + link(p.href) + '" target="_blank" style="color:' + C.ink + ';text-decoration:none;">' + esc(name) + '</a></td></tr>',
+      '<tr><td style="padding:4px 0 0;' + font(14, 20, 600, C.ink) + '">' + price + '</td></tr>',
+      '<tr><td style="padding:12px 0 0;">' + pill(cta, p.href, { block: true, size: 12, py: 9, px: 0 }) + '</td></tr>',
+      '</table>',
+      '</td></tr></table>',
+      '</div>',
+      '<!--[if mso]></td><![endif]-->',
+      '<!-- ▲ PRODOTTO ' + (i + 1) + ' ▲ -->'
+    ].join('\n');
+  }
+
+  function grid(list, d) {
+    var out = ['<div style="font-size:0;line-height:0;text-align:center;">',
+      '<!--[if mso]><table role="presentation" width="564" align="center" cellpadding="0" cellspacing="0" border="0"><tr><![endif]-->'];
+    list.forEach(function (p, i) {
+      if (i > 0 && i % 3 === 0) out.push('<!-- nuova riga Outlook (ogni 3 prodotti) --><!--[if mso]></tr><tr><![endif]-->');
+      out.push(card(p, i, d));
+    });
+    out.push('<!--[if mso]></tr></table><![endif]-->', '</div>');
+    return out.join('\n');
+  }
+
+  function parseLinks(text) {
+    return String(text || '').split('\n').map(function (line) {
+      var i = line.indexOf('|');
+      return i < 0 ? null : { label: line.slice(0, i).trim(), url: line.slice(i + 1).trim() };
+    }).filter(function (l) { return l && l.label; });
+  }
+
+  function buildEmail(d) {
+    d = d || {};
+    var b = d.brand || {};
+    var banner = d.banner || {};
+    var cta = d.cta || {};
+    var products = (d.products || []).filter(function (p) { return p && (has(p.name) || has(p.img) || has(p.href)); });
+    var logoW = Math.max(60, Math.min(300, parseInt(b.logoWidth, 10) || 140));
+    var rows = [];
+
+    // ✏️ BARRA TOP
+    if (has(d.topbar)) {
+      rows.push('<!-- ✏️ BARRA TOP -->',
+        '<tr><td align="center" bgcolor="' + C.ink + '" style="padding:11px 24px;border-radius:16px 16px 0 0;background:' + C.ink + ';' + font(12, 16, 500, '#FFFFFF') + 'letter-spacing:0.04em;">' + esc(d.topbar) + '</td></tr>');
+    }
+
+    // ✏️ LOGO
+    rows.push('<!-- ✏️ LOGO -->',
+      '<tr><td align="center" class="ca-px" style="padding:30px 40px 26px;">' +
+      '<a href="' + link(b.site) + '" target="_blank" style="text-decoration:none;">' +
+      (has(b.logo)
+        ? '<img src="' + esc(b.logo.trim()) + '" width="' + logoW + '" alt="AUREA" style="display:block;width:' + logoW + 'px;max-width:' + logoW + 'px;height:auto;border:0;outline:none;' + font(22, 28, 500, C.gold) + 'letter-spacing:0.3em;">'
+        : '<span style="' + font(22, 28, 500, C.gold) + 'letter-spacing:0.34em;">AUREA</span>') +
+      '</a></td></tr>');
+
+    // ✏️ BANNER
+    if (has(banner.src)) {
+      var bimg = '<img src="' + esc(banner.src.trim()) + '" width="564" alt="' + esc(banner.alt) + '" style="display:block;width:100%;max-width:564px;height:auto;border:0;outline:none;border-radius:12px;background:' + C.media + ';' + font(14, 20, 400, C.subtle) + '">';
+      rows.push('<!-- ✏️ BANNER -->',
+        '<tr><td class="ca-pad" style="padding:0 18px;">' +
+        (has(banner.href) ? '<a href="' + link(banner.href) + '" target="_blank" style="text-decoration:none;">' + bimg + '</a>' : bimg) +
+        '</td></tr>');
+    }
+
+    // ✏️ TITOLO + TESTO + BOTTONE
+    var intro = [];
+    if (has(d.eyebrow)) intro.push('<p style="margin:0 0 12px;' + font(12, 16, 600, C.goldText) + 'letter-spacing:0.16em;text-transform:uppercase;">' + esc(d.eyebrow) + '</p>');
+    if (has(d.title)) intro.push('<h1 class="ca-h1" style="margin:0;' + font(30, 36, 600, C.ink) + 'letter-spacing:-0.01em;">' + esc(d.title) + '</h1>');
+    if (has(d.text)) intro.push(paragraphs(d.text, font(15, 24, 400, C.muted)));
+    if (has(cta.label)) intro.push('<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-top:26px;">' + pill(cta.label, cta.href, { size: 14, py: 14, px: 30 }) + '</td></tr></table>');
+    if (intro.length) {
+      rows.push('<!-- ✏️ TITOLO E TESTO -->',
+        '<tr><td align="center" class="ca-px" style="padding:' + (has(banner.src) ? 38 : 4) + 'px 48px 4px;text-align:center;">\n' + intro.join('\n') + '\n</td></tr>');
+    }
+
+    // ✏️ PRODOTTI
+    if (products.length) {
+      if (has(d.productsTitle)) {
+        rows.push('<!-- ✏️ TITOLO SEZIONE PRODOTTI -->',
+          '<tr><td align="center" class="ca-px" style="padding:46px 40px 24px;">' +
+          '<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td width="40" height="1" bgcolor="' + C.gold + '" style="width:40px;height:1px;background:' + C.gold + ';font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr></table>' +
+          '<h2 style="margin:18px 0 0;' + font(20, 26, 600, C.ink) + '">' + esc(d.productsTitle) + '</h2>' +
+          '</td></tr>');
+      } else {
+        rows.push('<tr><td style="height:36px;font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr>');
+      }
+      rows.push('<!-- ✏️ PRODOTTI: ogni scheda va da «▼ PRODOTTO n ▼» a «▲ PRODOTTO n ▲» -->',
+        '<tr><td class="ca-pad" style="padding:0 18px 12px;">\n' + grid(products, d) + '\n</td></tr>');
+    } else {
+      rows.push('<tr><td style="height:36px;font-size:1px;line-height:1px;mso-line-height-rule:exactly;">&nbsp;</td></tr>');
+    }
+
+    // PIÈ DI PAGINA
+    var sep = '<span style="color:' + C.subtle + ';">&nbsp;&nbsp;·&nbsp;&nbsp;</span>';
+    var links = parseLinks(b.footerLinks).map(function (l) {
+      return '<a href="' + link(l.url) + '" target="_blank" style="color:' + C.ink + ';text-decoration:none;font-weight:500;">' + esc(l.label) + '</a>';
+    }).join(sep);
+    var foot = [];
+    if (links) foot.push('<p style="margin:0 0 16px;' + font(12, 20, 400, C.ink) + '">' + links + '</p>');
+    if (has(b.legal)) foot.push('<p style="margin:0 0 4px;' + font(11, 17, 400, C.subtle) + '">' + esc(b.legal) + '</p>');
+    if (has(b.email)) foot.push('<p style="margin:0 0 14px;' + font(11, 17, 400, C.subtle) + '"><a href="mailto:' + esc(b.email.trim()) + '" style="color:' + C.subtle + ';text-decoration:underline;">' + esc(b.email) + '</a></p>');
+    foot.push('<p style="margin:0;' + font(11, 17, 400, C.subtle) + '">' + (has(b.footerNote) ? esc(b.footerNote) + '<br>' : '') +
+      '<a href="{{ unsubscribe }}" target="_blank" style="color:' + C.subtle + ';text-decoration:underline;">Annulla l\'iscrizione</a></p>');
+
+    var preheader = has(d.preheader)
+      ? '<div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:' + C.canvas + ';">' + esc(d.preheader) + new Array(60).join('&#847;&zwnj;&nbsp;') + '</div>'
+      : '';
+
+    return [
+      '<!DOCTYPE html>',
+      '<html lang="it" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">',
+      '<head>',
+      '<!--',
+      '  NEWSLETTER COLLEZIONE AUREA · template per Brevo (HTML custom code)',
+      '  Le parti modificabili sono segnate con ✏️ (cerca «✏️» nel codice).',
+      '  PRODOTTI: ogni scheda va da «▼ PRODOTTO n ▼» a «▲ PRODOTTO n ▲».',
+      '  Per aggiungerne uno copia un blocco intero e cambia immagine (src), nome, prezzo e link (href).',
+      '  Ogni 3 prodotti lascia la riga «nuova riga Outlook»: serve solo a Outlook desktop.',
+      '  Più comodo: modificare con editor-newsletter.html e incollare qui il codice generato.',
+      '-->',
+      '<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
+      '<meta name="x-apple-disable-message-reformatting">',
+      '<meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">',
+      '<meta name="color-scheme" content="light">',
+      '<meta name="supported-color-schemes" content="light">',
+      '<title>' + esc(has(d.title) ? d.title : 'Collezione Aurea') + '</title>',
+      '<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->',
+      '<!--[if mso]><style>body,table,td,p,a,span,h1,h2{font-family:Arial,Helvetica,sans-serif !important;}</style><![endif]-->',
+      '<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">',
+      '<style>',
+      '  :root { color-scheme: light; supported-color-schemes: light; }',
+      '  body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }',
+      '  table { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }',
+      '  img { -ms-interpolation-mode: bicubic; }',
+      '  @media screen and (max-width: 620px) {',
+      '    .ca-wrap { width: 100% !important; }',
+      '    .ca-px { padding-left: 24px !important; padding-right: 24px !important; }',
+      '    .ca-pad { padding-left: 12px !important; padding-right: 12px !important; }',
+      '    .ca-card { max-width: 50% !important; }',
+      '    .ca-h1 { font-size: 26px !important; line-height: 32px !important; }',
+      '  }',
+      '</style>',
+      '<style>',
+      '  a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; }',
+      '  u + #body a { color: inherit; text-decoration: none; }',
+      '</style>',
+      '</head>',
+      '<body id="body" style="margin:0;padding:0;width:100%;background:' + C.canvas + ';">',
+      '<!-- ✏️ PREHEADER (testo di anteprima nella inbox) -->',
+      preheader,
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="' + C.canvas + '" style="background:' + C.canvas + ';">',
+      '<tr><td align="center" style="padding:16px 12px 40px;">',
+      '<!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->',
+      '<table role="presentation" class="ca-wrap" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;border-collapse:separate;">',
+      '<tr><td align="center" style="padding:0 0 14px;' + font(11, 16, 400, C.subtle) + '"><a href="{{ mirror }}" target="_blank" style="color:' + C.subtle + ';text-decoration:underline;">Visualizza nel browser</a></td></tr>',
+      '<tr><td bgcolor="' + C.card + '" style="background:' + C.card + ';border-radius:16px;">',
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">',
+      rows.join('\n'),
+      '</table>',
+      '</td></tr>',
+      '<!-- PIÈ DI PAGINA -->',
+      '<tr><td align="center" class="ca-px" style="padding:30px 40px 0;text-align:center;">',
+      foot.join('\n'),
+      '</td></tr>',
+      '</table>',
+      '<!--[if mso]></td></tr></table><![endif]-->',
+      '</td></tr>',
+      '</table>',
+      '</body>',
+      '</html>'
+    ].join('\n');
+  }
+
+  root.CA_EMAIL = { build: buildEmail, defaults: DEFAULTS, fmtPrice: fmtPrice };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<!-- ===================================================================
+     EDITOR — interfaccia, salvataggio bozza, anteprima, copia/scarica.
+     =================================================================== -->
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'ca-newsletter-editor-v1';
+  // Webhook n8n «Collezione Aurea: Scheda prodotto per newsletter» (legge la Store API pubblica di WooCommerce)
+  var PRODUCT_API = 'https://n8n.sharpmetricsagency.com/webhook/ca-scheda-prodotto';
+  var build = window.CA_EMAIL.build;
+  var DEFAULTS = window.CA_EMAIL.defaults;
+  var $ = function (s, el) { return (el || document).querySelector(s); };
+  var $$ = function (s, el) { return Array.prototype.slice.call((el || document).querySelectorAll(s)); };
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function normalize(s) {
+    var base = clone(DEFAULTS);
+    if (!s || typeof s !== 'object') return base;
+    var out = Object.assign(base, s);
+    out.banner = Object.assign(clone(DEFAULTS.banner), s.banner || {});
+    out.cta = Object.assign(clone(DEFAULTS.cta), s.cta || {});
+    out.brand = Object.assign(clone(DEFAULTS.brand), s.brand || {});
+    out.products = Array.isArray(s.products) ? s.products.map(function (p) {
+      return Object.assign({ name: '', price: '', oldPrice: '', href: '', img: '', cta: '' }, p || {});
+    }) : clone(DEFAULTS.products);
+    return out;
+  }
+  function load() {
+    try { var raw = localStorage.getItem(STORAGE_KEY); return raw ? normalize(JSON.parse(raw)) : null; }
+    catch (e) { return null; }
+  }
+  function persist() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* storage non disponibile */ }
+  }
+
+  var state = load() || clone(DEFAULTS);
+
+  function getPath(o, path) { return path.split('.').reduce(function (a, k) { return a == null ? a : a[k]; }, o); }
+  function setPath(o, path, v) {
+    var ks = path.split('.'), a = o;
+    ks.slice(0, -1).forEach(function (k) { if (a[k] == null || typeof a[k] !== 'object') a[k] = {}; a = a[k]; });
+    a[ks[ks.length - 1]] = v;
+  }
+
+  /* ---------- Campi semplici ---------- */
+  function fillForm() {
+    $$('[data-key]').forEach(function (el) {
+      var v = getPath(state, el.dataset.key);
+      el.value = v == null ? '' : v;
+    });
+  }
+  $$('[data-key]').forEach(function (el) {
+    el.addEventListener('input', function () {
+      var v = el.type === 'number' ? (parseInt(el.value, 10) || '') : el.value;
+      setPath(state, el.dataset.key, v);
+      if (el.dataset.key === 'productCta') $$('[data-pkey="cta"]').forEach(function (i) { i.placeholder = el.value || 'Acquista'; });
+      schedule();
+    });
+  });
+
+  /* ---------- Prodotti ---------- */
+  var ICONS = {
+    up: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    down: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    dup: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="5" y="5" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 10.5V4a1 1 0 0 1 1-1h6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    del: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    sync: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13 8a5 5 0 0 1-8.6 3.5M3 8a5 5 0 0 1 8.6-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11.5 1.8v2.9H8.6M4.5 14.2v-2.9h2.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+
+  /* ---------- Lettura prodotto dal sito (webhook n8n) ---------- */
+  var PRODUCT_LINK_RE = /collezioneaurea\.com\/prodotto\/[^\/?#\s]+/i;
+  var loading = typeof WeakSet !== 'undefined' ? new WeakSet() : { has: function () { return false; }, add: function () {}, delete: function () {} };
+
+  function fetchProduct(url) {
+    var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeout = ctrl ? setTimeout(function () { ctrl.abort(); }, 15000) : null;
+    return fetch(PRODUCT_API + '?url=' + encodeURIComponent(url.trim()), ctrl ? { signal: ctrl.signal } : {})
+      .then(function (r) {
+        return r.json().catch(function () { return { ok: false, error: 'Risposta non valida dal server (' + r.status + ').' }; });
+      }, function () {
+        return { ok: false, error: 'Connessione al server non riuscita: controlla la rete e riprova.' };
+      })
+      .then(function (res) {
+        clearTimeout(timeout);
+        if (!res || !res.ok || !res.product) throw new Error((res && res.error) || 'Errore sconosciuto.');
+        return res.product;
+      });
+  }
+  function applyProduct(p, data) {
+    p.name = data.name || p.name || '';
+    p.price = data.price || '';
+    p.oldPrice = data.oldPrice || '';
+    p.href = data.href || p.href || '';
+    p.img = data.img || p.img || '';
+    p.outOfStock = data.inStock === false;
+  }
+  var THUMB_RE = /^(https?:\/\/[^?#]+\/wp-content\/uploads\/[^?#]+?)(\.(?:jpe?g|png|webp))(\?.*)?$/i;
+  var SIZED_RE = /-\d+x\d+\.(?:jpe?g|png|webp)(\?.*)?$/i;
+
+  function hintsFor(p) {
+    var out = [];
+    if (!String(p.href || '').trim()) out.push({ text: 'Manca il link al prodotto.' });
+    if (!String(p.img || '').trim()) out.push({ text: "Manca l'URL dell'immagine." });
+    else if (THUMB_RE.test(p.img.trim()) && !SIZED_RE.test(p.img.trim())) {
+      out.push({ text: 'Immagine a piena risoluzione: pesante da caricare.', action: 'thumb', label: 'Usa miniatura 600×750' });
+    }
+    if (String(p.name || '').trim().length > 48) out.push({ text: 'Nome lungo: potrebbe andare su 3 righe.' });
+    if (p.outOfStock) out.push({ text: 'Risulta esaurito sul sito: valuta di toglierlo.' });
+    return out;
+  }
+
+  function productItem(p, i, total) {
+    var el = document.createElement('div');
+    el.className = 'prod';
+    el.innerHTML =
+      '<div class="prod-head">' +
+        '<div class="thumb"><img alt=""></div>' +
+        '<div class="prod-title"><strong>Prodotto ' + (i + 1) + '</strong><span class="pname"></span></div>' +
+        '<div class="prod-actions">' +
+          '<button type="button" class="icon-btn" data-act="sync" title="Aggiorna dal sito (nome, prezzo, immagine)" aria-label="Aggiorna dal sito il prodotto ' + (i + 1) + '">' + ICONS.sync + '</button>' +
+          '<button type="button" class="icon-btn" data-act="up" title="Sposta su" aria-label="Sposta su il prodotto ' + (i + 1) + '"' + (i === 0 ? ' disabled' : '') + '>' + ICONS.up + '</button>' +
+          '<button type="button" class="icon-btn" data-act="down" title="Sposta giù" aria-label="Sposta giù il prodotto ' + (i + 1) + '"' + (i === total - 1 ? ' disabled' : '') + '>' + ICONS.down + '</button>' +
+          '<button type="button" class="icon-btn" data-act="dup" title="Duplica" aria-label="Duplica il prodotto ' + (i + 1) + '">' + ICONS.dup + '</button>' +
+          '<button type="button" class="icon-btn danger" data-act="del" title="Elimina" aria-label="Elimina il prodotto ' + (i + 1) + '">' + ICONS.del + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<label class="f"><span>Nome</span><input data-pkey="name"></label>' +
+      '<div class="row2">' +
+        '<label class="f"><span>Prezzo</span><input data-pkey="price" placeholder="179,00" inputmode="decimal"></label>' +
+        '<label class="f"><span>Prezzo barrato <em>(opz.)</em></span><input data-pkey="oldPrice" placeholder="—" inputmode="decimal"></label>' +
+      '</div>' +
+      '<label class="f"><span>Link prodotto</span><input data-pkey="href" type="url" placeholder="https://www.collezioneaurea.com/prodotto/…"></label>' +
+      '<label class="f"><span>URL immagine <em>(ideale 600×750)</em></span><input data-pkey="img" type="url" placeholder="https://…"></label>' +
+      '<label class="f"><span>Testo bottone <em>(opz.)</em></span><input data-pkey="cta"></label>' +
+      '<div class="hints"></div>';
+
+    var thumb = $('.thumb img', el), pname = $('.pname', el), hints = $('.hints', el);
+    function refresh() {
+      var src = String(p.img || '').trim();
+      if (src) { thumb.src = src; thumb.style.visibility = 'visible'; } else { thumb.removeAttribute('src'); thumb.style.visibility = 'hidden'; }
+      pname.textContent = [p.name, window.CA_EMAIL.fmtPrice(p.price)].filter(Boolean).join(' · ') || 'Nuovo prodotto';
+      hints.innerHTML = '';
+      hintsFor(p).forEach(function (h) {
+        var row = document.createElement('div');
+        row.className = 'hint';
+        row.appendChild(document.createTextNode(h.text));
+        if (h.action === 'thumb') {
+          var b = document.createElement('button');
+          b.type = 'button'; b.textContent = h.label;
+          b.addEventListener('click', function () {
+            p.img = p.img.trim().replace(THUMB_RE, '$1-600x750$2$3');
+            $('[data-pkey="img"]', el).value = p.img;
+            refresh(); schedule();
+          });
+          row.appendChild(b);
+        }
+        hints.appendChild(row);
+      });
+    }
+    function sync(btn, silent) {
+      if (!String(p.href || '').trim()) {
+        toast('Inserisci prima il link del prodotto.');
+        $('[data-pkey="href"]', el).focus();
+        return;
+      }
+      if (loading.has(p)) return;
+      loading.add(p);
+      btn.classList.add('busy');
+      btn.disabled = true;
+      fetchProduct(p.href).then(function (data) {
+        applyProduct(p, data);
+        var idx = state.products.indexOf(p);
+        if (idx > -1 && el.isConnected) {
+          var hadFocus = btn === document.activeElement;
+          var fresh = productItem(p, idx, state.products.length);
+          el.replaceWith(fresh);
+          if (hadFocus) $('[data-act="sync"]', fresh).focus();
+        }
+        schedule();
+        if (!silent) toast('«' + p.name + '» aggiornato dal sito.');
+      }, function (err) {
+        toast(err.message);
+        btn.classList.remove('busy');
+        btn.disabled = false;
+      }).then(function () { loading.delete(p); });
+    }
+
+    $$('[data-pkey]', el).forEach(function (input) {
+      var k = input.dataset.pkey;
+      input.value = p[k] || '';
+      if (k === 'cta') input.placeholder = state.productCta || 'Acquista';
+      input.addEventListener('input', function () { p[k] = input.value; refresh(); schedule(); });
+      if (k === 'href') {
+        // Link incollato in una scheda vuota: compila subito dal sito
+        var auto = function () {
+          if (!String(p.name || '').trim() && !String(p.img || '').trim() && PRODUCT_LINK_RE.test(p.href || '')) {
+            sync($('[data-act="sync"]', el), true);
+          }
+        };
+        input.addEventListener('paste', function () { setTimeout(auto, 0); });
+        input.addEventListener('change', auto);
+      }
+    });
+    $$('[data-act]', el).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var list = state.products, act = btn.dataset.act;
+        if (act === 'sync') { sync(btn, false); return; }
+        if (act === 'up' && i > 0) list.splice(i - 1, 0, list.splice(i, 1)[0]);
+        if (act === 'down' && i < list.length - 1) list.splice(i + 1, 0, list.splice(i, 1)[0]);
+        if (act === 'dup') list.splice(i + 1, 0, clone(p));
+        if (act === 'del') {
+          if (!confirm('Eliminare «' + (p.name || 'Prodotto ' + (i + 1)) + '»?')) return;
+          list.splice(i, 1);
+        }
+        renderProducts();
+        var focusIdx = act === 'up' ? i - 1 : act === 'down' ? i + 1 : act === 'dup' ? i + 1 : Math.min(i, list.length - 1);
+        var target = $$('.prod')[focusIdx];
+        if (target) $('[data-act="' + (act === 'del' ? 'dup' : act) + '"]', target).focus();
+        schedule();
+      });
+    });
+    refresh();
+    return el;
+  }
+
+  function renderProducts() {
+    var box = $('#products');
+    box.innerHTML = '';
+    state.products.forEach(function (p, i) { box.appendChild(productItem(p, i, state.products.length)); });
+    var n = state.products.length;
+    $('#prod-count').textContent = n === 1 ? '1 prodotto' : n + ' prodotti';
+  }
+
+  $('#btn-add').addEventListener('click', function () {
+    state.products.push({ name: '', price: '', oldPrice: '', href: '', img: '', cta: '' });
+    renderProducts();
+    var items = $$('.prod');
+    var last = items[items.length - 1];
+    last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('[data-pkey="name"]', last).focus({ preventScroll: true });
+    schedule();
+  });
+
+  /* ---------- Aggiungi da link ---------- */
+  var quickBusy = false;
+  function quickAdd() {
+    if (quickBusy) return;
+    var ta = $('#quick-links'), status = $('#quick-status'), btn = $('#btn-quick');
+    var links = ta.value.split(/[\s,]+/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!links.length) {
+      status.className = 'quick-status err';
+      status.textContent = 'Incolla almeno un link.';
+      ta.focus();
+      return;
+    }
+    quickBusy = true;
+    btn.disabled = true;
+    status.className = 'quick-status';
+    var failed = [], added = 0;
+    links.reduce(function (chain, link, i) {
+      return chain.then(function () {
+        status.textContent = 'Leggo il prodotto ' + (i + 1) + ' di ' + links.length + '…';
+        return fetchProduct(link).then(function (data) {
+          var p = { name: '', price: '', oldPrice: '', href: '', img: '', cta: '' };
+          applyProduct(p, data);
+          state.products.push(p);
+          added++;
+          renderProducts();
+          schedule();
+        }, function (err) {
+          failed.push({ link: link, error: err.message });
+        });
+      });
+    }, Promise.resolve()).then(function () {
+      quickBusy = false;
+      btn.disabled = false;
+      ta.value = failed.map(function (f) { return f.link; }).join('\n');
+      if (failed.length) {
+        status.className = 'quick-status err';
+        status.textContent = (added ? added + (added === 1 ? ' aggiunto. ' : ' aggiunti. ') : '') +
+          (failed.length === 1 ? 'Link non aggiunto: ' : failed.length + ' link non aggiunti (sono rimasti nel campo). Primo errore: ') + failed[0].error;
+      } else {
+        status.textContent = added === 1 ? 'Prodotto aggiunto in fondo alla lista.' : added + ' prodotti aggiunti in fondo alla lista.';
+      }
+    });
+  }
+  $('#btn-quick').addEventListener('click', quickAdd);
+  $('#quick-links').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); quickAdd(); }
+  });
+
+  /* ---------- Anteprima ---------- */
+  var frame = $('#frame'), timer = null;
+  function render() {
+    var html = build(state);
+    var y = 0;
+    try { y = frame.contentWindow.scrollY || 0; } catch (e) { /* ignore */ }
+    frame.onload = function () { try { frame.contentWindow.scrollTo(0, y); } catch (e) { /* ignore */ } };
+    frame.srcdoc = html.replace('<head>', '<head><base target="_blank">');
+
+    var kb = new Blob([html]).size / 1024;
+    var size = $('#size');
+    size.textContent = 'Peso HTML ' + kb.toFixed(1) + ' KB' + (kb > 95 ? ' · rischio taglio Gmail' : '');
+    size.classList.toggle('bad', kb > 95);
+
+    $('#webp-note').hidden = !state.products.concat([{ img: state.banner && state.banner.src }])
+      .some(function (p) { return /\.webp(\?|$)/i.test(String(p.img || '').trim()); });
+  }
+  function schedule() {
+    clearTimeout(timer);
+    timer = setTimeout(function () { render(); persist(); }, 160);
+  }
+
+  $$('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      $$('.seg button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      $('#frame-wrap').classList.toggle('is-mobile', b.dataset.device === 'mobile');
+    });
+  });
+
+  /* ---------- Azioni ---------- */
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
+  }
+  function download(name, content, type) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], { type: type }));
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function today() { return new Date().toISOString().slice(0, 10); }
+
+  $('#btn-copy').addEventListener('click', function () {
+    var html = build(state);
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = html; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+      toast(ok ? 'HTML copiato: incollalo in Brevo › HTML custom code.' : 'Copia non riuscita: usa «Scarica .html».');
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(html).then(function () {
+        toast('HTML copiato: incollalo in Brevo › HTML custom code.');
+      }, fallback);
+    } else fallback();
+  });
+  $('#btn-download').addEventListener('click', function () {
+    download('newsletter-collezione-aurea-' + today() + '.html', build(state), 'text/html;charset=utf-8');
+  });
+  $('#btn-export').addEventListener('click', function () {
+    download('bozza-newsletter-aurea-' + today() + '.json', JSON.stringify(state, null, 2), 'application/json');
+    toast('Bozza salvata come file .json');
+  });
+  $('#btn-import').addEventListener('click', function () { $('#file-import').click(); });
+  $('#file-import').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        state = normalize(JSON.parse(reader.result));
+        fillForm(); renderProducts(); render(); persist();
+        toast('Bozza caricata.');
+      } catch (err) { toast('File non valido: serve un .json salvato da questo editor.'); }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+  $('#btn-reset').addEventListener('click', function () {
+    if (!confirm('Ripristinare il contenuto di esempio? Le modifiche attuali andranno perse (salva prima una bozza se ti servono).')) return;
+    state = clone(DEFAULTS);
+    fillForm(); renderProducts(); render(); persist();
+    toast('Contenuto di esempio ripristinato.');
+  });
+
+  fillForm();
+  renderProducts();
+  render();
+})();
+</script>
+</body>
+</html>
